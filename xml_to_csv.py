@@ -2,6 +2,8 @@ import os
 import pandas as pd
 import xml.etree.ElementTree as ET
 
+__author__ = 'sliu'
+
 
 def xml_to_csv(annotation_path, selected_list=range(401)):
     xml_list = []

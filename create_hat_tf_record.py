@@ -39,6 +39,9 @@ import tensorflow as tf
 from object_detection.utils import dataset_util
 
 
+__author__ = 'sliu'
+
+
 def class_text_to_int(row_label):
     if row_label == 'head':
         return 1

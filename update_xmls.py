@@ -1,6 +1,9 @@
 import os
 import xml.etree.ElementTree as ET
 
+
+__author__ = 'sliu'
+
 def update_xml_file(fn):
     PATH = 'C:\\dev\\models\\research\\hat_dataset\\'
     et = ET.parse(fn)

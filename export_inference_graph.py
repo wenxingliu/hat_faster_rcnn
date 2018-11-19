@@ -102,6 +102,10 @@ from google.protobuf import text_format
 from object_detection import exporter
 from object_detection.protos import pipeline_pb2
 
+
+
+__author__ = 'sliu'
+
 slim = tf.contrib.slim
 flags = tf.app.flags
 
