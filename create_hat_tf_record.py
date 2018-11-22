@@ -40,9 +40,9 @@ from object_detection.utils import dataset_util
 
 
 def class_text_to_int(row_label):
-    if row_label == 'head':
+    if row_label == 'hat':
         return 1
-    return 0
+    return 2
 
 def split(df, group):
     data = namedtuple('data', ['filename', 'object'])
