@@ -31,9 +31,6 @@ from keras.backend.tensorflow_backend import set_session
 from object_detection import model_hparams
 from object_detection import model_lib
 
-
-__author__ = 'sliu'
-
 flags.DEFINE_string(
     'model_dir', None, 'Path to output model directory '
     'where event and checkpoint files will be written.')
@@ -66,7 +63,7 @@ FLAGS = flags.FLAGS
 
 
 def main(unused_argv):
-    pipeline_config_path = "C:\\dev\\models\\research\\hat_dataset\\hat_resnet50_config.config"
+    pipeline_config_path = "object_detection\\hat_resnet50_config.config"
     model_dir = "C:\\dev\\models\\research\\hat_dataset\\checkpoints\\"
     config = tf.estimator.RunConfig(model_dir=model_dir)
 

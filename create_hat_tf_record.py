@@ -39,13 +39,10 @@ import tensorflow as tf
 from object_detection.utils import dataset_util
 
 
-__author__ = 'sliu'
-
-
 def class_text_to_int(row_label):
     if row_label == 'head':
         return 1
-
+    return 0
 
 def split(df, group):
     data = namedtuple('data', ['filename', 'object'])
@@ -96,32 +93,24 @@ def create_tf_example(group, path):
 
 def main(val=False):
     images_path = "C:\\dev\models\\research\\hat_dataset\\images\\"
-    label_csv_path = "C:\\dev\models\\research\\hat_dataset\\train_labels.csv"
+
+    if val:
+        label_csv_path = "C:\\dev\models\\research\\hat_dataset\\val_labels.csv"
+        output_path = "C:\\dev\models\\research\\hat_dataset\\TFRecords\\hat_train.record"
+    else:
+        label_csv_path = "C:\\dev\models\\research\\hat_dataset\\train_labels.csv"
+        output_path = "C:\\dev\models\\research\\hat_dataset\\TFRecords\\hat_val.record"
 
     examples = pd.read_csv(label_csv_path)
-    num_train = int(len(examples) * 0.8)
 
-    train_output_path = "C:\\dev\models\\research\\hat_dataset\\TFRecords\\train.record"
-    writer = tf.python_io.TFRecordWriter(train_output_path)
-    grouped = split(examples[:num_train], 'filename')
+    writer = tf.python_io.TFRecordWriter(output_path)
+    grouped = split(examples, 'filename')
+
     for group in grouped:
         tf_example = create_tf_example(group, images_path)
         writer.write(tf_example.SerializeToString())
 
-    writer.close()
-    print('Successfully created the TFRecords: {}'.format(train_output_path))
-
-    if val:
-        test_output_path = "C:\\dev\models\\research\\hat_dataset\\TFRecords\\test.record"
-        writer = tf.python_io.TFRecordWriter(test_output_path)
-        grouped = split(examples[num_train:], 'filename')
-        for group in grouped:
-            tf_example = create_tf_example(group, images_path)
-            writer.write(tf_example.SerializeToString())
-
-        writer.close()
-        print('Successfully created the TFRecords: {}'.format(test_output_path))
-
 
 if __name__ == '__main__':
-    main()
+    main(val=False)
+    main(val=True)

@@ -2,8 +2,6 @@ import os
 import pandas as pd
 import xml.etree.ElementTree as ET
 
-__author__ = 'sliu'
-
 
 def xml_to_csv(annotation_path, selected_list=range(401)):
     xml_list = []
@@ -43,3 +41,7 @@ if __name__ == "__main__":
     # use first 400 images to train, and use the rest for test
     train_out_dir = "C:\\dev\\models\\research\\hat_dataset\\train_labels.csv"
     main(annotation_path, train_out_dir, selected_list=range(1, 401))
+
+    # use first 400 images to train, and use the rest for test
+    val_out_dir = "C:\\dev\\models\\research\\hat_dataset\\val_labels.csv"
+    main(annotation_path, val_out_dir, selected_list=range(401, 501))
