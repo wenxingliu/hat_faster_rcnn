@@ -12,7 +12,7 @@ You may encounter issues installing cocoapi or protobuf on Windows OS. Find deta
 - https://github.com/philferriere/cocoapi
 - https://github.com/cocodataset/cocoapi/issues/51
 
-###Tips：
+### Tips：
 
 Before compile the protobuf libraries, copy the protoc.exe into ../research/ directory 
 
