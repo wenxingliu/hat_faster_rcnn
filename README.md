@@ -12,6 +12,8 @@ You may encounter issues installing cocoapi or protobuf on Windows OS. Find deta
 - https://github.com/philferriere/cocoapi
 - https://github.com/cocodataset/cocoapi/issues/51
 
+###Tips：
+
 Before compile the protobuf libraries, copy the protoc.exe into ../research/ directory 
 
 When compile with command "protoc object_detection/protos/*.proto --python_out=.", you can use git bash command if winows cmd or power shell don't work. 
