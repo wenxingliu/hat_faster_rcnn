@@ -27,8 +27,8 @@ Example usage:
 """
 import os
 import sys
-sys.path.insert(1, 'C:\\dev\\models\\research\\')
-os.chdir('C:\\dev\\models\\research\\')
+sys.path.insert(1, 'D:\\project3_faster_rcnn\\models-master\\research\\')
+os.chdir('D:\\project3_faster_rcnn\\models-master\\research\\')
 
 from collections import namedtuple
 import io
@@ -92,14 +92,14 @@ def create_tf_example(group, path):
 
 
 def main(val=False):
-    images_path = "C:\\dev\models\\research\\hat_dataset\\images\\"
+    images_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\images\\"
 
     if val:
-        label_csv_path = "C:\\dev\models\\research\\hat_dataset\\val_labels.csv"
-        output_path = "C:\\dev\models\\research\\hat_dataset\\TFRecords\\hat_train.record"
+        label_csv_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\val_labels.csv"
+        output_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\TFRecords\\hat_val.record"
     else:
-        label_csv_path = "C:\\dev\models\\research\\hat_dataset\\train_labels.csv"
-        output_path = "C:\\dev\models\\research\\hat_dataset\\TFRecords\\hat_val.record"
+        label_csv_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\train_labels.csv"
+        output_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\TFRecords\\hat_train.record"
 
     examples = pd.read_csv(label_csv_path)
 

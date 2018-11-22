@@ -36,12 +36,12 @@ def main(annotation_path, out_dir, selected_list):
 
 
 if __name__ == "__main__":
-    annotation_path = "C:\\dev\\models\\research\\hat_dataset\\annotations\\xmls\\"
+    annotation_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\annotations\\hat_xmls\\"
 
     # use first 400 images to train, and use the rest for test
-    train_out_dir = "C:\\dev\\models\\research\\hat_dataset\\train_labels.csv"
+    train_out_dir = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\train_labels.csv"
     main(annotation_path, train_out_dir, selected_list=range(1, 401))
 
     # use first 400 images to train, and use the rest for test
-    val_out_dir = "C:\\dev\\models\\research\\hat_dataset\\val_labels.csv"
+    val_out_dir = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\val_labels.csv"
     main(annotation_path, val_out_dir, selected_list=range(401, 501))
