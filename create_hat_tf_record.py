@@ -27,8 +27,8 @@ Example usage:
 """
 import os
 import sys
-sys.path.insert(1, 'C:\\dev\\models\\research\\')
-os.chdir('C:\\dev\\models\\research\\')
+sys.path.insert(1, 'D:\\project3_faster_rcnn\\models-master\\research\\')
+os.chdir('D:\\project3_faster_rcnn\\models-master\\research\\')
 
 from collections import namedtuple
 import io
@@ -40,9 +40,9 @@ from object_detection.utils import dataset_util
 
 
 def class_text_to_int(row_label):
-    if row_label == 'head':
+    if row_label == 'hat':
         return 1
-    return 0
+    return 2
 
 def split(df, group):
     data = namedtuple('data', ['filename', 'object'])
@@ -92,14 +92,14 @@ def create_tf_example(group, path):
 
 
 def main(val=False):
-    images_path = "C:\\dev\models\\research\\hat_dataset\\images\\"
+    images_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\images\\"
 
     if val:
-        label_csv_path = "C:\\dev\models\\research\\hat_dataset\\val_labels.csv"
-        output_path = "C:\\dev\models\\research\\hat_dataset\\TFRecords\\hat_train.record"
+        label_csv_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\val_labels.csv"
+        output_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\TFRecords\\hat_val.record"
     else:
-        label_csv_path = "C:\\dev\models\\research\\hat_dataset\\train_labels.csv"
-        output_path = "C:\\dev\models\\research\\hat_dataset\\TFRecords\\hat_val.record"
+        label_csv_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\train_labels.csv"
+        output_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\TFRecords\\hat_train.record"
 
     examples = pd.read_csv(label_csv_path)
 

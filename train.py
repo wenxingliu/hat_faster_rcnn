@@ -20,8 +20,8 @@ from __future__ import print_function
 
 import os
 import sys
-sys.path.insert(1, 'C:\\dev\\models\\research\\')
-os.chdir('C:\\dev\\models\\research\\')
+sys.path.insert(1, 'D:\\project3_faster_rcnn\\models-master\\research\\')
+os.chdir('D:\\project3_faster_rcnn\\models-master\\research\\')
 
 from absl import flags
 
@@ -63,8 +63,8 @@ FLAGS = flags.FLAGS
 
 
 def main(unused_argv):
-    pipeline_config_path = "C:\\dev\\models\\research\\hat_dataset\\hat_resnet50_config.config"
-    model_dir = "C:\\dev\\models\\research\\hat_dataset\\checkpoints\\"
+    pipeline_config_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\hat_resnet50_config.config"
+    model_dir = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\checkpoints\\"
     config = tf.estimator.RunConfig(model_dir=model_dir)
 
     train_and_eval_dict = model_lib.create_estimator_and_inputs(
