@@ -23,6 +23,8 @@ If you're using python3 , add list() to category_index.values() in model_lib.py 
 reference for other errors:
 - https://github.com/tensorflow/models/issues/4881
 
+when using ssd as the pre trained models, tf 1.12.0 may help you avoid some errors.
+
 ### Local Dir Structure:
 
 Create `hat_dataset` folder under `research`, then clone this repo to `hat_dataset`. Folder structure should look like the following.
