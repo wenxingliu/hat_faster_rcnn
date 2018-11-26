@@ -18,7 +18,7 @@ Before compile the protobuf libraries, copy the protoc.exe into ../research/ dir
 
 When compile with command "protoc object_detection/protos/*.proto --python_out=.", you can use git bash command if winows cmd or power shell don't work. 
 
-If you're using python3 , add list() to category_index.values() in model_lib.py about line 381 as this list(category_index.values()).
+If you're using python3 , add list() to category_index.values() in model_lib.py about line 418 as this list(category_index.values()).
 
 reference for other errors:
 - https://github.com/tensorflow/models/issues/4881
