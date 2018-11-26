@@ -20,6 +20,9 @@ When compile with command "protoc object_detection/protos/*.proto --python_out=.
 
 If you're using python3 , add list() to category_index.values() in model_lib.py about line 381 as this list(category_index.values()).
 
+reference for other errors:
+- https://github.com/tensorflow/models/issues/4881
+
 ### Local Dir Structure:
 
 Create `hat_dataset` folder under `research`, then clone this repo to `hat_dataset`. Folder structure should look like the following.
