@@ -3,6 +3,8 @@ import sys
 sys.path.insert(1, 'D:\\project3_faster_rcnn\\models-master\\research\\')
 os.chdir('D:\\project3_faster_rcnn\\models-master\\research\\')
 
+__author__ = 'WangZe'
+
 import numpy as np
 import tensorflow as tf
 from time import time
