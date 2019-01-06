@@ -94,14 +94,13 @@ python export_inference_graph \
 
 import os
 import sys
-sys.path.insert(1, 'C:\\dev\\models\\research\\')
-os.chdir('C:\\dev\\models\\research\\')
+sys.path.insert(1, 'D:\\project3_faster_rcnn\\models-master\\research\\')
+os.chdir('D:\\project3_faster_rcnn\\models-master\\research\\')
 
 import tensorflow as tf
 from google.protobuf import text_format
 from object_detection import exporter
 from object_detection.protos import pipeline_pb2
-
 
 
 __author__ = 'sliu'
@@ -122,16 +121,16 @@ flags.DEFINE_string('input_shape', None,
                     '`[None, None, None, 3]`.')
 
 # update the config file path name if you are using a different one
-flags.DEFINE_string('pipeline_config_path', "C:\\dev\\models\\research\\hat_dataset\\hat_resnet50_config.config",
+flags.DEFINE_string('pipeline_config_path', "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\faster_rcnn_resnet50.config",
                     'Path to a pipeline_pb2.TrainEvalPipelineConfig config '
                     'file.')
 
 # the line below needs to be updated with ckpt file name
-flags.DEFINE_string('trained_checkpoint_prefix', "C:\\dev\\models\\research\\hat_dataset\\checkpoints\model.ckpt-1416",
+flags.DEFINE_string('trained_checkpoint_prefix', "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\checkpoints\\faster_rcnn_resnet50\\model.ckpt-100000",
                     'Path to trained checkpoint, typically of the form '
                     'path/to/model.ckpt')
 # update output dir
-flags.DEFINE_string('output_directory', "C:\\dev\\models\\research\\hat_dataset\\saved_models\\model_1416", 'Path to write outputs.')
+flags.DEFINE_string('output_directory', "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\saved_models\\faster_rcnn_resnet50", 'Path to write outputs.')
 flags.DEFINE_string('config_override', '',
                     'pipeline_pb2.TrainEvalPipelineConfig '
                     'text proto to override pipeline_config_path.')

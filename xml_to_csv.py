@@ -8,7 +8,10 @@ def xml_to_csv(annotation_path, selected_list=range(401)):
     for xml_file in os.listdir(annotation_path):
         if xml_file.endswith('.xml') is False:
             continue
-        file_num = int(xml_file.split('.xml')[0])
+        if isinstance(xml_file.split(".xml"), int):
+            file_num = int(xml_file.split('.xml')[0])
+        else:
+            file_num = int(xml_file.split(".xml")[0].split("_")[-1])
         if file_num not in selected_list:
             continue
         tree = ET.parse(annotation_path + xml_file)
@@ -36,12 +39,12 @@ def main(annotation_path, out_dir, selected_list):
 
 
 if __name__ == "__main__":
-    annotation_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\annotations\\hat_xmls\\"
+    annotation_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\annotations\\2k_hat_xmls\\"
 
     # use first 400 images to train, and use the rest for test
     train_out_dir = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\train_labels.csv"
-    main(annotation_path, train_out_dir, selected_list=range(1, 401))
+    main(annotation_path, train_out_dir, selected_list=range(0, 1240))
 
     # use first 400 images to train, and use the rest for test
     val_out_dir = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\val_labels.csv"
-    main(annotation_path, val_out_dir, selected_list=range(401, 501))
+    main(annotation_path, val_out_dir, selected_list=range(1240, 1540))

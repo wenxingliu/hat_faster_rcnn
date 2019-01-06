@@ -42,6 +42,7 @@ from object_detection.utils import dataset_util
 def class_text_to_int(row_label):
     if row_label == 'hat':
         return 1
+
     return 2
 
 def split(df, group):
@@ -92,7 +93,7 @@ def create_tf_example(group, path):
 
 
 def main(val=False):
-    images_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\images\\"
+    images_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\2k_images\\"
 
     if val:
         label_csv_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\val_labels.csv"
