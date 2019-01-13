@@ -164,6 +164,7 @@ def detect_video_frcnn(config_path):
                 return_value, image_np = vid.read()
                 frame_id += 1
                 if frame_id % frame_interval != 0:
+                # if frame_id % 50 > 10:
                     continue
                 if return_value:
                     ###################
@@ -312,6 +313,7 @@ def detect_video_list_frcnn(config_path):
                 while True:
                     return_value, image_np = vid.read()
                     frame_id += 1
+                    # if frame_id % 50 > 10:
                     if frame_id % frame_interval != 0:
                         continue
                     return_value, image_np = vid.read()

@@ -440,7 +440,8 @@ def detect_video_list_yolo(config_path):
         while True:
             return_value, image_np = vid.read()
             frame_id += 1
-            if frame_id % frame_interval != 0:
+            if frame_id % 50 > 10:
+            # if frame_id % frame_interval != 0:
                 continue
             if return_value:
                 ###################
