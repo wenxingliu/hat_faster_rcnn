@@ -5,7 +5,7 @@ Created on Fri Jan 18 20:57:14 2019
 @author: admin
 """
 
-all_xmls_path = "C:\\Users\\admin\\Desktop\\xmls"
+all_xmls_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\data_single_no_hat\\train_xmls"
 
 import os
 import xml.etree.ElementTree as ET
@@ -29,8 +29,6 @@ for id, xml in enumerate(xml_list):
         if bbox.find('name').text == "hat":
             root.remove(bbox)
             
-        
-        
-    xml_tree.write(os.path.join(all_xmls_path, str(id) +".xml"))
+    xml_tree.write(xml_path)
 
 
