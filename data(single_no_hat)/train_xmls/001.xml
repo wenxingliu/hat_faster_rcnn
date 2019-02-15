@@ -1,0 +1,26 @@
+<annotation>
+	<folder>images</folder>
+	<filename>001.jpg</filename>
+	<path>D:\project3_faster_rcnn\models-master\research\hat_detection\data(single_no_hat)\train_images\001.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>995</width>
+		<height>509</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>no_hat</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>276</xmin>
+			<ymin>185</ymin>
+			<xmax>334</xmax>
+			<ymax>272</ymax>
+		</bndbox>
+	</object>
+</annotation>

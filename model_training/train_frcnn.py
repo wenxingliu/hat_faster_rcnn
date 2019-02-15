@@ -17,7 +17,7 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-
+import configparser
 import os
 import sys
 sys.path.insert(1, 'D:\\project3_faster_rcnn\\models-master\\research\\')
@@ -62,19 +62,20 @@ flags.DEFINE_boolean(
 FLAGS = flags.FLAGS
 
 
-def main(unused_argv):
-    pipeline_config_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\hat_resnet50_config.config"
-    model_dir = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\checkpoints\\"
+def frcnn_train(config):
+    cf = configparser.ConfigParser()
+    cf.read(config)
+    pipeline_config_path = os.path.abspath(cf.get("faster_rcnn_model", "pipeline_config_path"))
+    model_dir = os.path.abspath(cf.get("faster_rcnn_model", "model_dir"))
     config = tf.estimator.RunConfig(model_dir=model_dir)
 
     train_and_eval_dict = model_lib.create_estimator_and_inputs(
       run_config=config,
-      hparams=model_hparams.create_hparams(FLAGS.hparams_overrides),
+      hparams=model_hparams.create_hparams(None),
       pipeline_config_path=pipeline_config_path,
-      train_steps=FLAGS.num_train_steps,
-      sample_1_of_n_eval_examples=FLAGS.sample_1_of_n_eval_examples,
-      sample_1_of_n_eval_on_train_examples=(
-          FLAGS.sample_1_of_n_eval_on_train_examples))
+      train_steps=None,
+      sample_1_of_n_eval_examples=1,
+      sample_1_of_n_eval_on_train_examples=5)
     estimator = train_and_eval_dict['estimator']
     train_input_fn = train_and_eval_dict['train_input_fn']
     eval_input_fns = train_and_eval_dict['eval_input_fns']
@@ -87,34 +88,18 @@ def main(unused_argv):
     session = tf.Session(config=config)
     set_session(session)
 
-    if FLAGS.checkpoint_dir:
-        if FLAGS.eval_training_data:
-            name = 'training_data'
-            input_fn = eval_on_train_input_fn
-        else:
-            name = 'validation_data'
-            # The first eval input will be evaluated.
-            input_fn = eval_input_fns[0]
-        if FLAGS.run_once:
-            estimator.evaluate(input_fn,
-                             num_eval_steps=None,
-                             checkpoint_path=tf.train.latest_checkpoint(
-                                 FLAGS.checkpoint_dir))
-        else:
-            model_lib.continuous_eval(estimator, FLAGS.checkpoint_dir, input_fn,
-                                    train_steps, name)
-    else:
-        train_spec, eval_specs = model_lib.create_train_and_eval_specs(
-            train_input_fn,
-            eval_input_fns,
-            eval_on_train_input_fn,
-            predict_input_fn,
-            train_steps,
-            eval_on_train_data=False)
+    train_spec, eval_specs = model_lib.create_train_and_eval_specs(
+        train_input_fn,
+        eval_input_fns,
+        eval_on_train_input_fn,
+        predict_input_fn,
+        train_steps,
+        eval_on_train_data=False)
 
-        # Currently only a single Eval Spec is allowed.
-        tf.estimator.train_and_evaluate(estimator, train_spec, eval_specs[0])
+    # Currently only a single Eval Spec is allowed.
+    tf.estimator.train_and_evaluate(estimator, train_spec, eval_specs[0])
 
 
 if __name__ == '__main__':
-  tf.app.run()
+    tf.app.run()
+

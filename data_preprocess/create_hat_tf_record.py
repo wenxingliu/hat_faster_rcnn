@@ -44,6 +44,7 @@ def class_text_to_int(row_label):
         return 1
     return 2
 
+
 def split(df, group):
     data = namedtuple('data', ['filename', 'object'])
     gb = df.groupby(group)
@@ -92,16 +93,16 @@ def create_tf_example(group, path):
 
 
 def main(val=False):
-    images_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\images\\"
+    images_path = "./hat_detection/data(single_no_hat)/train_images/"
 
     if val:
-        label_csv_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\val_labels.csv"
-        output_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\TFRecords\\hat_val.record"
+        label_csv_path = "./hat_detection/val_labels.csv"
+        output_path = "./hat_detection/train_tfrecords/hat_val.record"
     else:
-        label_csv_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\train_labels.csv"
-        output_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\TFRecords\\hat_train.record"
+        label_csv_path = "./hat_detection/train_labels.csv"
+        output_path = "./hat_detection/train_tfrecords//hat_train.record"
 
-    examples = pd.read_csv(label_csv_path)
+    examples = pd.read_csv(os.path.abspath(label_csv_path))
 
     writer = tf.python_io.TFRecordWriter(output_path)
     grouped = split(examples, 'filename')
@@ -113,4 +114,4 @@ def main(val=False):
 
 if __name__ == '__main__':
     main(val=False)
-    main(val=True)
+    # main(val=True)

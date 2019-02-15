@@ -10,20 +10,8 @@ https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc
 You may encounter issues installing cocoapi or protobuf on Windows OS. Find details and follow steps on:
 - https://github.com/maierfelix/POGOserver/wiki/Windows-Protobuf-How-To
 - https://github.com/philferriere/cocoapi
-- https://github.com/cocodataset/cocoapi/issues/51
 
-### Tips：
 
-Before compile the protobuf libraries, copy the protoc.exe into ../research/ directory 
-
-When compile with command "protoc object_detection/protos/*.proto --python_out=.", you can use git bash command if winows cmd or power shell don't work. 
-
-If you're using python3 , add list() to category_index.values() in model_lib.py about line 418 as this list(category_index.values()).
-
-reference for other errors:
-- https://github.com/tensorflow/models/issues/4881
-
-when using ssd as the pre trained models, tf 1.12.0 may help you avoid some errors.
 
 ### Local Dir Structure:
 
@@ -33,7 +21,6 @@ Create `hat_dataset` folder under `research`, then clone this repo to `hat_datas
     - hat_dataset
         - annotations
             - xmls
-            - hat_xmls
         - images
         - TFRecords
         - checkpoints
