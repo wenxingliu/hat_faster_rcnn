@@ -82,10 +82,10 @@ def filtered_box_stage1(detection_mode, output_dicts, frame_id, video_fps, video
     :param frame_id:
     :param video_fps:
     :param frame_num_for_judge:
-    :param min_prob:
-    :param min_x:
-    :param min_y:
-    :param min_area:
+    :param min_prob: min score of the object
+    :param min_x: left of box
+    :param min_y: top of box
+    :param min_area: area of box
     :return: filtered_outputdicts, result
     """
     if detection_mode == "image":
@@ -125,6 +125,7 @@ def filtered_box_stage1(detection_mode, output_dicts, frame_id, video_fps, video
             # filtered_box_copy = copy.deepcopy(filtered_box)
             box_and_other_box_iou = [bboxes_iou(box, box2) for box2 in filtered_box]
             iou_sorted = sorted(box_and_other_box_iou, reverse=True)
+            # in iou_sorted , iou_sorted[0] is the iou of one box with itself
             max_iou = iou_sorted[1]
             if max_iou > overlap_threshold:
                 box2_id = box_and_other_box_iou.index(max_iou)
@@ -140,11 +141,11 @@ def filtered_box_stage1(detection_mode, output_dicts, frame_id, video_fps, video
                     del filtered_box[box_id], filtered_classes[box_id], filtered_scores[box_id]
 
     total_nums = hat_nums + no_hat_nums
-    if detection_mode == "image":
-        result = [frame_id, filtered_box, filtered_scores, filtered_classes, hat_nums, no_hat_nums, total_nums]
-    else:
-        video_time = round(frame_id / video_fps, 2)
-        result = [video_time, filtered_box, filtered_scores, filtered_classes, hat_nums, no_hat_nums, total_nums]
+    # if detection_mode == "image":
+    #     result = [frame_id, filtered_box, filtered_scores, filtered_classes, hat_nums, no_hat_nums, total_nums]
+    # else:
+    video_time = round(frame_id / video_fps, 2)
+    result = [video_time, filtered_box, filtered_scores, filtered_classes, hat_nums, no_hat_nums, total_nums]
     filter_output_dict = dict(boxes=filtered_box, classes=filtered_classes, scores=filtered_scores)
     return filter_output_dict, result
 

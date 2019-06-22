@@ -6,7 +6,7 @@ Created on Fri Jan 18 20:57:14 2019
 """
 
 # all_xmls_path = "C:\\Users\\admin\\Desktop\\xmls"
-all_xmls_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\data_single_no_hat\\test_xmls"
+all_xmls_path = "D:\\project3_faster_rcnn\\models-master\\research\\hat_detection\\data(single_no_hat)\\train_xmls"
 
 import os
 import xml.etree.ElementTree as ET

@@ -370,7 +370,7 @@ def detect_video_list_frcnn(config_path):
         print("cost time: %.2f min" % testing_time)
 
 
-def detect_rstp_video_frcnn(config_path):
+def detect_rstp_video_frcnn_on_web(config_path):
     cf = configparser.ConfigParser()
     cf.read(config_path)
     frozen_graph_path = cf.get("faster_rcnn_model", "PATH_TO_FROZEN_GRAPH")
@@ -390,7 +390,6 @@ def detect_rstp_video_frcnn(config_path):
     min_area = cf.getfloat("test_video_config", "min_area")
     min_ratio = cf.getfloat("test_video_config", "min_ratio")
     frame_interval = cf.getint("test_video_config", "interval")
-
     detect_mode = "video"
     time1 = time.time()
     vid = cv2.VideoCapture(video_rstp_address)
@@ -440,9 +439,8 @@ def detect_rstp_video_frcnn(config_path):
                         tensor_name)
             while True:
                 return_value, image_np = vid.read()
-                frame_id += 1
+                frame_id += (frame_id % 5 * 3600) + 1
                 if frame_id % frame_interval != 0:
-                # if frame_id % 50 > 10:
                     continue
                 if return_value:
                     ###################
@@ -474,8 +472,153 @@ def detect_rstp_video_frcnn(config_path):
                             date = str(now_time.month) + "_" + str(now_time.day) + "_" + str(now_time.hour)\
                                 + "_" + str(now_time.minute) + "_" + str(now_time.second)
                             print("Found %d chefs without hats at " % no_hat_num, now_time.ctime())
-                            cv2.imwrite(save_path + "\\" + video_name + "_time=" +
-                                        date + "_no_hats" + '.jpg', frames[id])
+                            #cv2.imwrite(save_path + "\\" + video_name + "_time=" +
+                            #            date + "_no_hats" + '.jpg', frames[id])
+                        results.popleft()
+                        frames.popleft()
+
+                    #######################
+                    curr_time = time.time()
+                    exec_time = curr_time - prev_time
+                    prev_time = curr_time
+                    accum_time = accum_time + exec_time
+                    curr_fps = curr_fps + 1
+                    if accum_time > 1:
+                        accum_time = accum_time - 1
+                        fps = "FPS: " + str(curr_fps)
+                        curr_fps = 0
+                    """
+                    cv2.putText(image, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                fontScale=0.50, color=(255, 0, 0), thickness=2)
+                    cv2.namedWindow("result", cv2.WINDOW_NORMAL)
+                    cv2.imshow("result", image)
+                    """
+                    # output to show on web
+                    ret, jpeg = cv2.imencode('.jpg', image)
+                    img_byte = jpeg.tobytes()
+                    # yield img_byte
+                    out_web = (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + img_byte + b'\r\n\r\n')
+                    yield out_web
+                    if isOutput:
+                        out.write(image)
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        break
+                else:
+                    break
+
+    testing_time = (time.time() - time1) / 60
+    logs.write("\ntest time: " + str(round(testing_time, 2)) + "min\n")
+    logs.close()
+    print("cost time: %.2f min" % testing_time)
+
+def detect_rstp_video_frcnn(config_path):
+    cf = configparser.ConfigParser()
+    cf.read(config_path)
+    frozen_graph_path = cf.get("faster_rcnn_model", "PATH_TO_FROZEN_GRAPH")
+    labels_path = cf.get("faster_rcnn_model", "PATH_TO_LABELS")
+    detection_graph, category_index = get_detection_graph_and_index(frozen_graph_path, labels_path)
+
+    video_rstp_address = cf.get("rstp_video_address", "video_rstp_address1")
+    output_path = cf.get("rstp_video_address", "output_video_path")
+    out_log_path = cf.get("rstp_video_address", "out_log_path")
+
+    frame_num_for_judge = cf.getint("test_video_config", "frame_num_for_judge")
+    use_normalized_coordinates = cf.getboolean("faster_rcnn_model", "use_normalized_coordinates")
+    nms_threshold = cf.getfloat("test_video_config", "nms_threshold")
+    min_prob = cf.getfloat("test_video_config", "min_prob")
+    min_x = cf.getfloat("test_video_config", "min_x")
+    min_y = cf.getfloat("test_video_config", "min_y")
+    min_area = cf.getfloat("test_video_config", "min_area")
+    min_ratio = cf.getfloat("test_video_config", "min_ratio")
+    frame_interval = cf.getint("test_video_config", "interval")
+    detect_mode = "video"
+    time1 = time.time()
+    vid = cv2.VideoCapture(video_rstp_address)
+    if not vid.isOpened():
+        raise IOError("Couldn't open webcam or video")
+    video_FourCC = int(vid.get(cv2.CAP_PROP_FOURCC))
+    video_fps = vid.get(cv2.CAP_PROP_FPS)
+    video_size = (int(vid.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                        int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+    isOutput = True if output_path != "" else False
+    if isOutput:
+        print("!!! TYPE:", type(output_path), type(video_FourCC), type(video_fps), type(video_size))
+        out = cv2.VideoWriter(output_path, video_FourCC, video_fps, video_size)
+    accum_time = 0
+    curr_fps = 0
+    fps = "FPS: ??"
+    prev_time = time.time()
+    frame_id = -1
+    results = deque()
+    frames = deque()
+    output_info = []
+    video_name = "rstp2"
+    save_path = os.path.join(out_log_path, video_name + "_test")
+    if os.path.exists(save_path):
+        import shutil
+        shutil.rmtree(save_path, ignore_errors=True)
+        print("remove dir: " + save_path)
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+    # os.makedirs(save_path)
+    logs = open(save_path + "\\" + video_name + "_log.txt", "w")
+    import datetime
+    logs.write("detection start time:" + datetime.datetime.now().ctime())
+    logs.write("video_rstp_address:" + video_rstp_address)
+    logs.write("\nvideo fps: " + str(video_fps))
+    save_image = True
+    detection_mode = 'video'
+    with detection_graph.as_default():
+        with tf.Session() as sess:
+            ops = tf.get_default_graph().get_operations()
+            all_tensor_names = {output.name for op in ops for output in op.outputs}
+            tensor_dict = {}
+            for key in ['num_detections', 'detection_boxes', 'detection_scores', 'detection_classes']:
+                tensor_name = key + ':0'
+                if tensor_name in all_tensor_names:
+                    tensor_dict[key] = tf.get_default_graph().get_tensor_by_name(
+                        tensor_name)
+            while True:
+                return_value, image_np = vid.read()
+                # 防止frame_id过大
+                frame_id += (frame_id % 5*3600) + 1
+                if frame_id % frame_interval != 0:
+                # if frame_id % 50 > 10:
+                    continue
+
+                if return_value:
+                    ###################
+                    # Actual detection.
+                    output_dict = run_inference_for_single_image(image_np, sess, tensor_dict)
+                    filtered_outputdict, result = filtered_box_stage1(detection_mode, output_dict, frame_id, video_fps,
+                                                                      video_size,
+                                                                      use_normalized_coordinates,
+                                                                      nms_threshold,
+                                                                      min_prob, min_x,
+                                                                      min_y, min_area)
+                    image = visualize(
+                            image_np,
+                            filtered_outputdict['boxes'],
+                            filtered_outputdict['classes'],
+                            filtered_outputdict['scores'],
+                            category_index,
+                            use_normalized_coordinates,
+                            line_thickness=3,
+                            )
+                    results.append(result)
+                    frames.append(image)
+                    if len(results) >= frame_num_for_judge:
+                        no_hat_time_, no_hat_num, id = filtered_box_stage2(results, frame_num_for_judge, min_ratio)
+                        # if no_hat_time_==True, at this time, there are no_hat chefs
+                        if no_hat_time_:
+                            output_info.append([no_hat_time_, no_hat_num])
+                            now_time = datetime.datetime.now()
+                            date = str(now_time.month) + "_" + str(now_time.day) + "_" + str(now_time.hour)\
+                                + "_" + str(now_time.minute) + "_" + str(now_time.second)
+                            print("Found %d chefs without hats at " % no_hat_num, now_time.ctime())
+                            if save_image:
+                                cv2.imwrite(save_path + "\\" + video_name + "_time=" +
+                                           date + "_no_hats" + '.jpg', frames[id])
                         results.popleft()
                         frames.popleft()
 
@@ -504,8 +647,6 @@ def detect_rstp_video_frcnn(config_path):
     logs.write("\ntest time: " + str(round(testing_time, 2)) + "min\n")
     logs.close()
     print("cost time: %.2f min" % testing_time)
-
-
 
 
 

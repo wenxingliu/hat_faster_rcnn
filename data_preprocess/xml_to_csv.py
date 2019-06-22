@@ -3,7 +3,7 @@ import pandas as pd
 import xml.etree.ElementTree as ET
 
 
-def xml_to_csv(annotation_path, selected_list=range(401)):
+def xml_to_csv(annotation_path):
     xml_list = []
     for xml_file in os.listdir(annotation_path):
         # if xml_file.endswith('.xml') is False:
@@ -32,8 +32,8 @@ def xml_to_csv(annotation_path, selected_list=range(401)):
     return xml_df
 
 
-def main(annotation_path, out_dir, selected_list):
-    xml_df = xml_to_csv(annotation_path, selected_list)
+def main(annotation_path, out_dir):
+    xml_df = xml_to_csv(annotation_path)
     xml_df.to_csv(out_dir, index=None)
     print('Successfully converted xml to csv.')
 
@@ -43,9 +43,9 @@ if __name__ == "__main__":
         "D:\\project3_faster_rcnn\\models-master\\research\\hat_detection\\data(single_no_hat)\\train_xmls\\"
 
     # use first 400 images to train, and use the rest for test
-    train_out_dir = "D:\\project3_faster_rcnn\\models-master\\research\\hat_detection\\train_labels.csv"
-    main(annotation_path, train_out_dir, selected_list=range(0, 1240))
+    train_out_dir = "D:\\project3_faster_rcnn\\models-master\\research\\hat_detection\\model_training\\train_labels.csv"
+    # main(annotation_path, train_out_dir)
 
     # use first 400 images to train, and use the rest for test
-    # val_out_dir = "D:\\project3_faster_rcnn\\models-master\\research\\hat_dataset\\val_labels.csv"
-    # main(annotation_path, val_out_dir, selected_list=range(1240, 1540))
+    val_out_dir = "D:\\project3_faster_rcnn\\models-master\\research\\hat_detection\\model_training\\val_labels.csv"
+    main(annotation_path, val_out_dir)

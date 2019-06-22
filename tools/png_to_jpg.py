@@ -8,9 +8,9 @@ from absl import flags, app
 #     os.chdir(cwd[0:-4])
 #     cwd = os.getcwd()
 
-flags.DEFINE_string('image_path', None, "image to be transformed")
-flags.DEFINE_string('output_path', None, 'image save path')
-flags.DEFINE_bool("overrite", False, "whether to overrite png images with jpg image")
+flags.DEFINE_string('image_path', 'D:\\project3_faster_rcnn\\models-master\\research\\hat_detection\\data(single_no_hat)\\train_images', "image to be transformed")
+flags.DEFINE_string('output_path', 'D:\\project3_faster_rcnn\\models-master\\research\\hat_detection\\data(single_no_hat)\\train_images', 'image save path')
+flags.DEFINE_bool("overrite", True, "whether to overrite png images with jpg image")
 Flags = flags.FLAGS
 
 

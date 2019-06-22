@@ -96,11 +96,11 @@ def main(val=False):
     images_path = "./hat_detection/data(single_no_hat)/train_images/"
 
     if val:
-        label_csv_path = "./hat_detection/val_labels.csv"
-        output_path = "./hat_detection/train_tfrecords/hat_val.record"
+        label_csv_path = "./hat_detection/model_training/val_labels.csv"
+        output_path = "./hat_detection/model_training/hat_val.record"
     else:
-        label_csv_path = "./hat_detection/train_labels.csv"
-        output_path = "./hat_detection/train_tfrecords//hat_train.record"
+        label_csv_path = "./hat_detection/model_training/train_labels.csv"
+        output_path = "./hat_detection/model_training//hat_train.record"
 
     examples = pd.read_csv(os.path.abspath(label_csv_path))
 
