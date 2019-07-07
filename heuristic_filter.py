@@ -87,6 +87,7 @@ def filtered_box_stage1(detection_mode, output_dicts, frame_id, video_fps, video
     :param min_y: top of box
     :param min_area: area of box
     :return: filtered_outputdicts, result
+    result = [frame_id or time, filtered_box, filtered_scores, filtered_classes, hat_nums, no_hat_nums, total_nums]
     """
     if detection_mode == "image":
         video_fps = None
@@ -156,13 +157,65 @@ def filtered_box_stage2(results, frame_num_for_judge, min_ratio):
     no_hat_nums = [result[-2] for result in results]
     frame_nums = len(results)
     assert frame_nums == frame_num_for_judge
+    # put all box in all frames to a numpy array
+    all_boxes = []
+    for i in range(len(results)):
+        cur_frame_boxes = results[i][1]
+        for j in range(len(cur_frame_boxes)):
+            all_boxes.append(cur_frame_boxes[j])
+    # all_boxes = np.array(all_boxes)
+    # compute iou between each box and others
+    nums = len(all_boxes)
+    ious = np.empty(shape=(nums, nums))
+    for i in range(nums):
+        for j in range(nums):
+            # if i == j:
+            #     continue
+            ious[i][j] = bboxes_iou(all_boxes[i], all_boxes[j])
+    # clustering all of the boxes
+    clusters = []
+    num_list = list(range(nums))
+    import copy
+    num_list_cluster = copy.deepcopy(num_list)
+    i = 0
+    while(num_list):
+        if i in num_list:
+            one_cluster = []
+            one_cluster.append(all_boxes[i])
+            num_list.remove(i)
+            # all_boxes.remove(all_boxes[i])
+            to_del = []
+            for j in num_list:
+                if ious[i][j] > 0.3:
+                    one_cluster.append(all_boxes[j])
+                    to_del.append(j)
+            # one_cluster = list(set(one_cluster))
+            for m in to_del:
+                num_list.remove(m)
+            clusters.append(one_cluster)
+        i += 1
+    to_remove_id = []
+    for id, cur_cluster in enumerate(clusters):
+        # 80% 帧检测到并且iou极高说明是背景物体误检, 其他的60%帧以下不稳定所以剔除
+        tmp = len(cur_cluster) / frame_nums
+        if tmp < 0.5 or (tmp >= 0.8 and min_iou_in_one_cluser(cur_cluster) > 0.98):
+            to_remove_id.append(id)
+    for i in range(len(to_remove_id)):
+        clusters.pop(0)
 
-    no_hat_num, frequents = Counter(no_hat_nums).most_common(1)[0]
-    if no_hat_num > 0 and frequents > min_ratio * frame_num_for_judge:
-        video_time = results[0][0]
-        return video_time, no_hat_num, no_hat_nums.index(no_hat_num)
+    if clusters:
+        # video_time = results[0][0]
+        no_hat = True
+        return no_hat, len(clusters), clusters
     else:
         return None, None, None
+
+
+def min_iou_in_one_cluser(cluster):
+    ious = []
+    for i in range(1, len(cluster)):
+        ious.append(bboxes_iou(cluster[0], cluster[i]))
+    return min(ious)
 
 
 def compute_bbox_sizes(bboxes):
@@ -180,86 +233,6 @@ def bboxes_iou(bbox_0, bbox_1):
     iou = inter_bbox_size / float(bbox_size_0 + bbox_size_1 - inter_bbox_size)
     return iou
 
-
-def filtered_box_stage1_two_object(detection_mode, output_dicts, frame_id, video_fps, video_size, use_normalized_coordinates,
-                        overlap_threshold, min_prob, min_x, min_y, min_area):
-    """
-    :param output_dicts: [box, scores, class],      box;300*4; scores:300; class: 300
-        box : [ymin, xmin, ymax, xmax]
-    :param frame_id:
-    :param video_fps:
-    :param frame_num_for_judge:
-    :param min_prob:
-    :param min_x:
-    :param min_y:
-    :param min_area:
-    :return: filtered_outputdicts, result
-    """
-    if detection_mode == "image":
-        video_fps = None
-
-    boxes = output_dicts['detection_boxes'].tolist()
-    classes = output_dicts['detection_classes'].tolist()
-    scores = output_dicts['detection_scores'].tolist()
-    hat_nums = 0
-    no_hat_nums = 0
-    filtered_box = []
-    filtered_classes = []
-    filtered_scores = []
-    if not use_normalized_coordinates:
-        width, height = video_size
-        min_area = width * height * min_area
-        min_x = min_x * width
-        min_y = min_y * height
-        max_x = width - min_x
-    else:
-        max_x = 1 - min_x
-    for box_id, box in enumerate(boxes):
-        #  filter the box that in the frame edge, the box of small area and the box with low score
-        box_area = (box[2] - box[0]) * (box[3] - box[1])
-        box_score = scores[box_id]
-        if box[1] > min_x and box[3] < max_x and box[0] > min_y and box_area > min_area and box_score > min_prob:
-            filtered_box.append(box)
-            filtered_classes.append(classes[box_id])
-            filtered_scores.append(scores[box_id])
-            if classes[box_id] == 1:
-                hat_nums += 1
-            else:
-                no_hat_nums += 1
-
-    # threshold = 0.8
-    # filter the box of high iou with other boxes (NMS)
-    if len(filtered_box) > 1:
-        for box_id, box in enumerate(filtered_box):
-            # filtered_box_copy = copy.deepcopy(filtered_box)
-            box_and_other_box_iou = [bboxes_iou(box, box2) for box2 in filtered_box]
-            iou_sorted = sorted(box_and_other_box_iou, reverse=True)
-            max_iou = iou_sorted[1]
-            if max_iou > overlap_threshold:
-                box2_id = box_and_other_box_iou.index(max_iou)
-                box1_score = filtered_scores[box_id]  # current box score
-                box2_score = filtered_scores[box2_id]  # max iou box score
-                if box1_score > box2_score:
-                    if filtered_classes[box2_id] == 1:
-                        hat_nums -= 1
-                    else:
-                        no_hat_nums -= 1
-                    del filtered_box[box2_id], filtered_classes[box2_id], filtered_scores[box2_id]
-                else:
-                    if filtered_classes[box2_id] == 1:
-                        hat_nums -= 1
-                    else:
-                        no_hat_nums -= 1
-                    del filtered_box[box_id], filtered_classes[box_id], filtered_scores[box_id]
-
-    total_nums = hat_nums + no_hat_nums
-    if detection_mode == "image":
-        result = [frame_id, filtered_box, filtered_scores, filtered_classes, hat_nums, no_hat_nums, total_nums]
-    else:
-        video_time = round(frame_id / video_fps, 2)
-        result = [video_time, filtered_box, filtered_scores, filtered_classes, hat_nums, no_hat_nums, total_nums]
-    filter_output_dict = dict(boxes=filtered_box, classes=filtered_classes, scores=filtered_scores)
-    return filter_output_dict, result
 
 
 

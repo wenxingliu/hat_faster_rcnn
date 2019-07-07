@@ -106,14 +106,14 @@ def detect_image_frcnn(config_path):
 
 def detect_video_frcnn(config_path):
     cf = configparser.ConfigParser()
-    cf.read(config_path)
+    cf.read(os.path.abspath(config_path))
     frozen_graph_path = cf.get("faster_rcnn_model", "PATH_TO_FROZEN_GRAPH")
     labels_path = cf.get("faster_rcnn_model", "PATH_TO_LABELS")
     detection_graph, category_index = get_detection_graph_and_index(frozen_graph_path, labels_path)
 
-    video_path = cf.get("frcnn_test_video_path", "video_path")
-    output_path = cf.get("frcnn_test_video_path", "output_video_path")
-    out_log_path = cf.get("frcnn_test_video_path", "out_log_path")
+    video_path = cf.get("frcnn_test_video_path", "ts_video_path")
+    # output_path = cf.get("frcnn_test_video_path", "output_image_path")
+    out_log_path = cf.get("frcnn_test_video_path", "output_info_path")
 
     frame_num_for_judge = cf.getint("test_video_config", "frame_num_for_judge")
     use_normalized_coordinates = cf.getboolean("faster_rcnn_model", "use_normalized_coordinates")
@@ -135,13 +135,12 @@ def detect_video_frcnn(config_path):
     video_fps = vid.get(cv2.CAP_PROP_FPS)
     video_size = (int(vid.get(cv2.CAP_PROP_FRAME_WIDTH)),
                         int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-    isOutput = True if output_path != "" else False
-    if isOutput:
-        print("!!! TYPE:", type(output_path), type(video_FourCC), type(video_fps), type(video_size))
-        out = cv2.VideoWriter(output_path, video_FourCC, video_fps, video_size)
+    # isOutput = True if output_path != "" else False
+    # if isOutput:
+    #     print("!!! TYPE:", type(output_path), type(video_FourCC), type(video_fps), type(video_size))
+    #     out = cv2.VideoWriter(output_path, video_FourCC, video_fps, video_size)
     accum_time = 0
     curr_fps = 0
-    fps = "FPS: ??"
     prev_time = time.time()
     frame_id = -1
     results = deque()
@@ -155,9 +154,9 @@ def detect_video_frcnn(config_path):
     os.makedirs(save_path)
     logs = open(save_path + "\\" + video_name + "_log.txt", "w")
     logs.write("video name:" + video_name)
-    logs.write("\nvideo path:" + video_path)
+    logs.write("\nvideo path:" + os.path.abspath(video_path))
     logs.write("\nvideo fps: " + str(video_fps))
-    logs.write("\nvideo length: " + str(int(video_length/video_fps)) + "s")
+    logs.write("\nvideo length: " + str(int(video_length/video_fps)) + "s\n\n")
     # logs.write("                " + str(int(video_length / video_fps/60)) + "min")
     save_image = True
     detection_mode = 'video'
@@ -200,12 +199,11 @@ def detect_video_frcnn(config_path):
                     results.append(result)
                     frames.append(image)
                     if len(results) >= frame_num_for_judge:
-                        no_hat_time_, no_hat_num, id = filtered_box_stage2(results, frame_num_for_judge, min_ratio)
-                        # if no_hat_time_==True, at this time, there are no_hat chefs
-                        if no_hat_time_:
-                            output_info.append([no_hat_time_, no_hat_num])
+                        no_hat_time_, no_hat_num, boxes = filtered_box_stage2(results, frame_num_for_judge, min_ratio)
+                        # if no_hat_time_==True, no_hat chefs exists.
+                        if no_hat_time_ and save_image:
                             print("Found %d chefs without hats " % no_hat_num)
-                            cv2.imwrite(save_path + "\\" + video_name + "_" + str(frame_id) + '.jpg', frames[id])
+                            cv2.imwrite(save_path + "\\" + video_name + "_" + str(frame_id) + '.jpg', frames[-1])
                         results.popleft()
                         frames.popleft()
 
@@ -219,19 +217,27 @@ def detect_video_frcnn(config_path):
                         accum_time = accum_time - 1
                         fps = "FPS: " + str(curr_fps)
                         curr_fps = 0
-                    cv2.putText(image, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                                fontScale=0.50, color=(255, 0, 0), thickness=2)
-                    cv2.namedWindow("result", cv2.WINDOW_NORMAL)
-                    cv2.imshow("result", image)
-                    if isOutput:
-                        out.write(image)
+                    # cv2.putText(image, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                    #             fontScale=0.50, color=(255, 0, 0), thickness=2)
+                    # cv2.namedWindow("result", cv2.WINDOW_NORMAL)
+                    # cv2.imshow("result", image)
+                    # if isOutput:
+                    #     out.write(image)
                     if cv2.waitKey(1) & 0xFF == ord('q'):
                         break
                 else:
                     break
-
+    boxes_max = []
+    if boxes:
+        for i in range(len(boxes)):
+            boxes_info = np.array(boxes[i]).max(axis=0)
+            boxes_max.append(boxes_info)
+    res = dict()
+    res["folder"] = os.path.abspath(out_log_path)
+    res["box"] = boxes_max
     testing_time = (time.time() - time1) / 60
-    logs.write("\ntest time: " + str(round(testing_time, 2)) + "min\n")
+    logs.write(str(res))
+    # logs.write("\ntest time: " + str(round(testing_time, 2)) + "min\n")
     logs.close()
     print("cost time: %.2f min" % testing_time)
 
